@@ -6,7 +6,6 @@ const urlsToCache = [
   '/app.js',
   '/manifest.json',
   '/service-worker.js',
-  '/icons/icon-192.png',
   '/icons/icon-512.png'
 ];
 
