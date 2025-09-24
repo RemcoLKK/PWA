@@ -1,114 +1,154 @@
-<!-- Create a simple Program to build the Calculator in JavaScript using with HTML and CSS web languages. -->  
-<!DOCTYPE html>  
-<html lang = "en">  
-<head>  
-<title> JavaScript Calculator </title>  
-<link rel="manifest" href="src/manifest.json">
-  
-<style>  
-h1 {  
-    text-align: center;  
-    padding: 22px;  
-    background-color: skyblue;  
-    color: white;  
-    }  
-  
-#clear{  
-width: 270px;  
-border: 3px solid gray;  
-    border-radius: 3px;  
-    padding: 20px;  
-    background-color: red;  
-}  
-  
-.formstyle  
-{  
-width: 300px;  
-height: 530px;  
-margin: auto;  
-border: 3px solid skyblue;  
-border-radius: 5px;  
-padding: 20px;  
-}  
-  
-  
-  
-input  
-{  
-width: 20px;  
-background-color: green;  
-color: white;  
-border: 3px solid gray;  
-    border-radius: 5px;  
-    padding: 26px;  
-    margin: 5px;  
-    font-size: 15px;  
-}  
-  
-  
-#calc{  
-width: 250px;  
-border: 5px solid black;  
-    border-radius: 3px;  
-    padding: 20px;  
-    margin: auto;  
-}  
-  
-</style>  
-  
-</head>  
-<body>  
-    
-<h1> Calculator Program in JavaScript </h1>  
-<div class= "formstyle">  
-<form name = "form1">  
-      
-    <!-- This input box shows the button pressed by the user in calculator. -->  
-  <input id = "calc" type ="text" name = "answer"> <br> <br>  
-  <!-- Display the calculator button on the screen. -->  
-  <!-- onclick() function display the number prsses by the user. -->  
-  <input type = "button" value = "1" onclick = "form1.answer.value += '1' ">  
-  <input type = "button" value = "2" onclick = "form1.answer.value += '2' ">  
-  <input type = "button" value = "3" onclick = "form1.answer.value += '3' ">  
-   <input type = "button" value = "+" onclick = "form1.answer.value += '+' ">  
-  <br> <br>  
-    
-  <input type = "button" value = "4" onclick = "form1.answer.value += '4' ">  
-  <input type = "button" value = "5" onclick = "form1.answer.value += '5' ">  
-  <input type = "button" value = "6" onclick = "form1.answer.value += '6' ">  
-  <input type = "button" value = "-" onclick = "form1.answer.value += '-' ">  
-  <br> <br>  
-    
-  <input type = "button" value = "7" onclick = "form1.answer.value += '7' ">  
-  <input type = "button" value = "8" onclick = "form1.answer.value += '8' ">  
-  <input type = "button" value = "9" onclick = "form1.answer.value += '9' ">  
-  <input type = "button" value = "*" onclick = "form1.answer.value += '*' ">  
-  <br> <br>  
-    
-    
-  <input type = "button" value = "/" onclick = "form1.answer.value += '/' ">  
-  <input type = "button" value = "0" onclick = "form1.answer.value += '0' ">  
-    <input type = "button" value = "." onclick = "form1.answer.value += '.' ">  
-    <!-- When we click on the '=' button, the onclick() shows the sum results on the calculator screen. -->  
-  <input type = "button" value = "=" onclick = "form1.answer.value = eval(form1.answer.value) ">  
-  <br>   
-  <!-- Display the Cancel button and erase all data entered by the user. -->  
-  <input type = "button" value = "Clear All" onclick = "form1.answer.value = ' ' " id= "clear" >  
-  <br>   
-    
-</form>  
-</div>  
-<script>
-    if ("serviceWorker" in navigator) {
-        console.log("Service Worker supported");
-        navigator.serviceWorker.register("./sw.js").then(ServiceWorkerRegistration => {
-            console.log("SW Registered");
-            console.log(ServiceWorkerRegistration);
-        }).catch(error => {
-            console.log("SW Registration failed");
-            console.log(error);
-        })
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pong Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    canvas {
+      background: black;
+      display: block;
+      margin: auto;
     }
-</script>
-</body>  
-</html>  
+  </style>
+</head>
+<body>
+  <canvas id="pong" width="600" height="400"></canvas>
+
+  <script>
+    const canvas = document.getElementById("pong");
+    const ctx = canvas.getContext("2d");
+
+    // Ball
+    const ball = {
+      x: canvas.width / 2,
+      y: canvas.height / 2,
+      radius: 10,
+      speed: 5,
+      velocityX: 5,
+      velocityY: 5,
+      color: "WHITE"
+    };
+
+    // Paddle
+    const paddleWidth = 10, paddleHeight = 100;
+    const player = {
+      x: 0,
+      y: canvas.height / 2 - paddleHeight / 2,
+      width: paddleWidth,
+      height: paddleHeight,
+      color: "WHITE",
+      score: 0
+    };
+    const computer = {
+      x: canvas.width - paddleWidth,
+      y: canvas.height / 2 - paddleHeight / 2,
+      width: paddleWidth,
+      height: paddleHeight,
+      color: "WHITE",
+      score: 0
+    };
+
+    // Draw Rect
+    function drawRect(x, y, w, h, color) {
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, w, h);
+    }
+
+    // Draw Circle
+    function drawCircle(x, y, r, color) {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI*2, false);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Draw text
+    function drawText(text, x, y, color) {
+      ctx.fillStyle = color;
+      ctx.font = "45px Arial";
+      ctx.fillText(text, x, y);
+    }
+
+    // Render
+    function render() {
+      drawRect(0, 0, canvas.width, canvas.height, "BLACK");
+      drawText(player.score, canvas.width/4, 50, "WHITE");
+      drawText(computer.score, 3*canvas.width/4, 50, "WHITE");
+      drawRect(player.x, player.y, player.width, player.height, player.color);
+      drawRect(computer.x, computer.y, computer.width, computer.height, computer.color);
+      drawCircle(ball.x, ball.y, ball.radius, ball.color);
+    }
+
+    // Update
+    function update() {
+      ball.x += ball.velocityX;
+      ball.y += ball.velocityY;
+
+      // Bounce top/bottom
+      if(ball.y + ball.radius > canvas.height || ball.y - ball.radius < 0){
+        ball.velocityY = -ball.velocityY;
+      }
+
+      // Move computer AI
+      computer.y += ((ball.y - (computer.y + paddleHeight/2))) * 0.09;
+
+      // Collision with paddles
+      let playerPaddle = {
+        top: player.y,
+        bottom: player.y + player.height,
+        left: player.x,
+        right: player.x + player.width
+      };
+      let computerPaddle = {
+        top: computer.y,
+        bottom: computer.y + computer.height,
+        left: computer.x,
+        right: computer.x + computer.width
+      };
+
+      function collision(b, p){
+        return b.x < p.right && b.x > p.left && b.y < p.bottom && b.y > p.top;
+      }
+
+      if(collision(ball, player)){
+        ball.velocityX = -ball.velocityX;
+      }
+      if(collision(ball, computer)){
+        ball.velocityX = -ball.velocityX;
+      }
+
+      // Score
+      if(ball.x - ball.radius < 0){
+        computer.score++;
+        resetBall();
+      } else if(ball.x + ball.radius > canvas.width){
+        player.score++;
+        resetBall();
+      }
+    }
+
+    function resetBall(){
+      ball.x = canvas.width / 2;
+      ball.y = canvas.height / 2;
+      ball.velocityX = -ball.velocityX;
+      ball.velocityY = 5;
+    }
+
+    // Move paddle with mouse
+    canvas.addEventListener("mousemove", evt => {
+      let rect = canvas.getBoundingClientRect();
+      player.y = evt.clientY - rect.top - player.height / 2;
+    });
+
+    // Game loop
+    function game(){
+      update();
+      render();
+    }
+
+    setInterval(game, 1000/60);
+  </script>
+</body>
+</html>
