@@ -1,155 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Pong Game</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    canvas {
-      background: black;
-      display: block;
-      margin: auto;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pong PWA</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="styles.css" />
+  <meta name="theme-color" content="#2196f3" />
 </head>
 <body>
   <canvas id="pong" width="600" height="400"></canvas>
+  <button id="installBtn">Install App</button>
 
+  <script src="app.js"></script>
   <script>
-    const canvas = document.getElementById("pong");
-    const ctx = canvas.getContext("2d");
-
-    // Ball
-    const ball = {
-      x: canvas.width / 2,
-      y: canvas.height / 2,
-      radius: 10,
-      speed: 5,
-      velocityX: 5,
-      velocityY: 5,
-      color: "WHITE"
-    };
-
-    // Paddle
-    const paddleWidth = 10, paddleHeight = 100;
-    const player = {
-      x: 0,
-      y: canvas.height / 2 - paddleHeight / 2,
-      width: paddleWidth,
-      height: paddleHeight,
-      color: "WHITE",
-      score: 0
-    };
-    const computer = {
-      x: canvas.width - paddleWidth,
-      y: canvas.height / 2 - paddleHeight / 2,
-      width: paddleWidth,
-      height: paddleHeight,
-      color: "WHITE",
-      score: 0
-    };
-
-    // Draw Rect
-    function drawRect(x, y, w, h, color) {
-      ctx.fillStyle = color;
-      ctx.fillRect(x, y, w, h);
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(() => console.log('✅ Service Worker registered'))
+        .catch(err => console.error('❌ SW registration failed:', err));
     }
 
-    // Draw Circle
-    function drawCircle(x, y, r, color) {
-      ctx.fillStyle = color;
-      ctx.beginPath();
-      ctx.arc(x, y, r, 0, Math.PI*2, false);
-      ctx.closePath();
-      ctx.fill();
-    }
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+    installBtn.style.display = 'none';
 
-    // Draw text
-    function drawText(text, x, y, color) {
-      ctx.fillStyle = color;
-      ctx.font = "45px Arial";
-      ctx.fillText(text, x, y);
-    }
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = 'block';
 
-    // Render
-    function render() {
-      drawRect(0, 0, canvas.width, canvas.height, "BLACK");
-      drawText(player.score, canvas.width/4, 50, "WHITE");
-      drawText(computer.score, 3*canvas.width/4, 50, "WHITE");
-      drawRect(player.x, player.y, player.width, player.height, player.color);
-      drawRect(computer.x, computer.y, computer.width, computer.height, computer.color);
-      drawCircle(ball.x, ball.y, ball.radius, ball.color);
-    }
-
-    // Update
-    function update() {
-      ball.x += ball.velocityX;
-      ball.y += ball.velocityY;
-
-      // Bounce top/bottom
-      if(ball.y + ball.radius > canvas.height || ball.y - ball.radius < 0){
-        ball.velocityY = -ball.velocityY;
-      }
-
-      // Move computer AI
-      computer.y += ((ball.y - (computer.y + paddleHeight/2))) * 0.09;
-
-      // Collision with paddles
-      let playerPaddle = {
-        top: player.y,
-        bottom: player.y + player.height,
-        left: player.x,
-        right: player.x + player.width
-      };
-      let computerPaddle = {
-        top: computer.y,
-        bottom: computer.y + computer.height,
-        left: computer.x,
-        right: computer.x + computer.width
-      };
-
-      function collision(b, p){
-        return b.x < p.right && b.x > p.left && b.y < p.bottom && b.y > p.top;
-      }
-
-      if(collision(ball, player)){
-        ball.velocityX = -ball.velocityX;
-      }
-      if(collision(ball, computer)){
-        ball.velocityX = -ball.velocityX;
-      }
-
-      // Score
-      if(ball.x - ball.radius < 0){
-        computer.score++;
-        resetBall();
-      } else if(ball.x + ball.radius > canvas.width){
-        player.score++;
-        resetBall();
-      }
-    }
-
-    function resetBall(){
-      ball.x = canvas.width / 2;
-      ball.y = canvas.height / 2;
-      ball.velocityX = -ball.velocityX;
-      ball.velocityY = 5;
-    }
-
-    // Move paddle with mouse
-    canvas.addEventListener("mousemove", evt => {
-      let rect = canvas.getBoundingClientRect();
-      player.y = evt.clientY - rect.top - player.height / 2;
+      installBtn.addEventListener('click', async () => {
+        installBtn.style.display = 'none';
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`Install response: ${outcome}`);
+        deferredPrompt = null;
+      });
     });
 
-    // Game loop
-    function game(){
-      update();
-      render();
-    }
-
-    setInterval(game, 1000/60);
+    window.addEventListener('appinstalled', () => {
+      console.log('✅ App installed');
+      installBtn.style.display = 'none';
+    });
   </script>
-  <button id="installBtn" style="display: none;">Install App</button>
 </body>
 </html>
