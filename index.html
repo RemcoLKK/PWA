@@ -10,7 +10,7 @@
 </head>
 <body>
   <canvas id="pong" width="600" height="400"></canvas>
-  <button id="installBtn">Install App</button>
+  <button id="installBtn" disabled>Install App</button>
 
   <script src="app.js"></script>
   <script>
@@ -22,25 +22,26 @@
 
     let deferredPrompt;
     const installBtn = document.getElementById('installBtn');
-    installBtn.style.display = 'none';
+    installBtn.disabled = true; // always visible, but disabled until prompt is ready
 
     window.addEventListener('beforeinstallprompt', (e) => {
+      console.log('🟢 beforeinstallprompt fired');
       e.preventDefault();
       deferredPrompt = e;
-      installBtn.style.display = 'block';
+      installBtn.disabled = false;
 
       installBtn.addEventListener('click', async () => {
-        installBtn.style.display = 'none';
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
         console.log(`Install response: ${outcome}`);
         deferredPrompt = null;
+        installBtn.disabled = true;
       });
     });
 
     window.addEventListener('appinstalled', () => {
       console.log('✅ App installed');
-      const installBtn = document.getElementById('installBtn');
+      installBtn.disabled = true;
     });
   </script>
 </body>
